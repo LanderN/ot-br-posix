@@ -490,6 +490,13 @@ struct LeaderData
     uint8_t  mLeaderRouterId;    ///< Leader Router ID
 };
 
+struct ServiceConfig
+{
+    uint32_t mEnterpriseNumber; ///< Enterprise Number
+    std::vector<uint8_t> mServiceData;
+    std::vector<uint8_t> mServerData = {};
+};
+
 } // namespace DBus
 } // namespace otbr
 

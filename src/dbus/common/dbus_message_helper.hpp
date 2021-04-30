@@ -73,6 +73,8 @@ otbrError DBusMessageEncode(DBusMessageIter *aIter, const LeaderData &aLeaderDat
 otbrError DBusMessageExtract(DBusMessageIter *aIter, LeaderData &aLeaderData);
 otbrError DBusMessageEncode(DBusMessageIter *aIter, const ChannelQuality &aQuality);
 otbrError DBusMessageExtract(DBusMessageIter *aIter, ChannelQuality &aQuality);
+otbrError DBusMessageEncode(DBusMessageIter *aIter, const ServiceConfig &aServiceConfig);
+otbrError DBusMessageExtract(DBusMessageIter *aIter, ServiceConfig &aServiceConfig);
 
 template <typename T> struct DBusTypeTrait;
 

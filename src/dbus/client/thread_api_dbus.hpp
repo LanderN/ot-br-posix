@@ -252,6 +252,32 @@ public:
     ClientError RemoveExternalRoute(const Ip6Prefix &aPrefix);
 
     /**
+     * This method adds a service.
+     *
+     * @param[in]   aServiceConfig  The service config.
+     *
+     * @retval ERROR_NONE successfully performed the dbus function call
+     * @retval ERROR_DBUS dbus encode/decode error
+     * @retval ...        OpenThread defined error value otherwise
+     *
+     */
+    ClientError AddService(const ServiceConfig &aServiceConfig);
+
+    /**
+     * This method removes a service.
+     *
+     * @param[in]   aEnterpriseNumber  The enterprise number.
+     * @param[in]   aServiceData       The service data.
+     *
+     * @retval ERROR_NONE successfully performed the dbus function call
+     * @retval ERROR_DBUS dbus encode/decode error
+     * @retval ...        OpenThread defined error value otherwise
+     *
+     */
+    ClientError RemoveService(uint32_t                    aEnterpriseNumber,
+                              const std::vector<uint8_t> &aServiceData);
+
+    /**
      * This method sets the mesh-local prefix.
      *
      * @param[in]   aPrefix     The address prefix.

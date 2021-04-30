@@ -383,6 +383,16 @@ ClientError ThreadApiDBus::RemoveExternalRoute(const Ip6Prefix &aPrefix)
     return CallDBusMethodSync(OTBR_DBUS_REMOVE_EXTERNAL_ROUTE_METHOD, std::tie(aPrefix));
 }
 
+ClientError ThreadApiDBus::AddService(const ServiceConfig &aServiceConfig)
+{
+    return CallDBusMethodSync(OTBR_DBUS_ADD_SERVICE_METHOD, std::tie(aServiceConfig));
+}
+
+ClientError ThreadApiDBus::RemoveService(uint32_t aEnterpriseNumber, const std::vector<uint8_t>& aServiceData)
+{
+    return CallDBusMethodSync(OTBR_DBUS_REMOVE_SERVICE_METHOD, std::tie(aEnterpriseNumber, aServiceData));
+}
+
 ClientError ThreadApiDBus::SetMeshLocalPrefix(const std::array<uint8_t, OTBR_IP6_PREFIX_SIZE> &aPrefix)
 {
     return SetProperty(OTBR_DBUS_PROPERTY_MESH_LOCAL_PREFIX, aPrefix);

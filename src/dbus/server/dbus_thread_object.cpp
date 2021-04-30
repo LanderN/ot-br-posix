@@ -38,6 +38,7 @@
 #include <openthread/netdata.h>
 #include <openthread/thread_ftd.h>
 #include <openthread/platform/radio.h>
+#include <openthread/server.h>
 
 #include "common/byteswap.hpp"
 #include "dbus/common/constants.hpp"
@@ -131,6 +132,10 @@ otbrError DBusThreadObject::Init(void)
                    std::bind(&DBusThreadObject::AddExternalRouteHandler, this, _1));
     RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_REMOVE_EXTERNAL_ROUTE_METHOD,
                    std::bind(&DBusThreadObject::RemoveExternalRouteHandler, this, _1));
+    RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_ADD_SERVICE_METHOD,
+                   std::bind(&DBusThreadObject::AddServiceHandler, this, _1));
+    RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_REMOVE_SERVICE_METHOD,
+                   std::bind(&DBusThreadObject::RemoveServiceHandler, this, _1));
 
     RegisterMethod(DBUS_INTERFACE_INTROSPECTABLE, DBUS_INTROSPECT_METHOD,
                    std::bind(&DBusThreadObject::IntrospectHandler, this, _1));
@@ -443,6 +448,55 @@ void DBusThreadObject::RemoveExternalRouteHandler(DBusRequest &aRequest)
     prefix.mLength = routePrefix.mLength;
 
     SuccessOrExit(error = otBorderRouterRemoveRoute(threadHelper->GetInstance(), &prefix));
+    SuccessOrExit(error = otBorderRouterRegister(threadHelper->GetInstance()));
+
+exit:
+    aRequest.ReplyOtResult(error);
+}
+
+void DBusThreadObject::AddServiceHandler(DBusRequest &aRequest)
+{
+    auto            threadHelper = mNcp->GetThreadHelper();
+    ServiceConfig   serviceConfig;
+    auto            args  = std::tie(serviceConfig);
+    otError         error = OT_ERROR_NONE;
+    otServiceConfig cfg;
+
+    VerifyOrExit(DBusMessageToTuple(*aRequest.GetMessage(), args) == OTBR_ERROR_NONE, error = OT_ERROR_INVALID_ARGS);
+
+    cfg.mEnterpriseNumber = serviceConfig.mEnterpriseNumber;
+
+    VerifyOrExit(serviceConfig.mServiceData.size() <= OT_SERVICE_DATA_MAX_SIZE, error = OT_ERROR_INVALID_ARGS);
+    std::copy(serviceConfig.mServiceData.begin(), serviceConfig.mServiceData.end(), cfg.mServiceData);
+    cfg.mServiceDataLength = serviceConfig.mServiceData.size();
+
+    VerifyOrExit(serviceConfig.mServerData.size() <= OT_SERVER_DATA_MAX_SIZE, error = OT_ERROR_INVALID_ARGS);
+    std::copy(serviceConfig.mServerData.begin(), serviceConfig.mServerData.end(), cfg.mServerConfig.mServerData);
+    cfg.mServerConfig.mServerDataLength = serviceConfig.mServerData.size();
+
+    cfg.mServerConfig.mStable = true;
+
+    SuccessOrExit(error = otServerAddService(threadHelper->GetInstance(), &cfg));
+    SuccessOrExit(error = otBorderRouterRegister(threadHelper->GetInstance()));
+
+exit:
+    aRequest.ReplyOtResult(error);
+}
+
+void DBusThreadObject::RemoveServiceHandler(DBusRequest &aRequest)
+{
+    auto                 threadHelper = mNcp->GetThreadHelper();
+    uint32_t             enterpriseNumber;
+    std::vector<uint8_t> serviceData;
+    auto                 args  = std::tie(enterpriseNumber, serviceData);
+    otError              error = OT_ERROR_NONE;
+
+    VerifyOrExit(DBusMessageToTuple(*aRequest.GetMessage(), args) == OTBR_ERROR_NONE, error = OT_ERROR_INVALID_ARGS);
+
+    VerifyOrExit(serviceData.size() <= OT_SERVICE_DATA_MAX_SIZE, error = OT_ERROR_INVALID_ARGS);
+
+    SuccessOrExit(error = otServerRemoveService(threadHelper->GetInstance(), enterpriseNumber,
+                                                serviceData.data(), serviceData.size()));
     SuccessOrExit(error = otBorderRouterRegister(threadHelper->GetInstance()));
 
 exit:
