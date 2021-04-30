@@ -136,6 +136,14 @@ otbrError DBusThreadObject::Init(void)
                    std::bind(&DBusThreadObject::AddServiceHandler, this, _1));
     RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_REMOVE_SERVICE_METHOD,
                    std::bind(&DBusThreadObject::RemoveServiceHandler, this, _1));
+    RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_COMMISSIONER_START_METHOD,
+                   std::bind(&DBusThreadObject::CommissionerStartHandler, this, _1));
+    RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_COMMISSIONER_STOP_METHOD,
+                   std::bind(&DBusThreadObject::CommissionerStopHandler, this, _1));
+    RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_COMMISSIONER_ADD_ANY_JOINER_METHOD,
+                   std::bind(&DBusThreadObject::CommissionerAddAnyJoinerHandler, this, _1));
+    RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_COMMISSIONER_REMOVE_ANY_JOINER_METHOD,
+                   std::bind(&DBusThreadObject::CommissionerRemoveAnyJoinerHandler, this, _1));
 
     RegisterMethod(DBUS_INTERFACE_INTROSPECTABLE, DBUS_INTROSPECT_METHOD,
                    std::bind(&DBusThreadObject::IntrospectHandler, this, _1));
@@ -501,6 +509,40 @@ void DBusThreadObject::RemoveServiceHandler(DBusRequest &aRequest)
 
 exit:
     aRequest.ReplyOtResult(error);
+}
+
+void DBusThreadObject::CommissionerStartHandler(DBusRequest &aRequest)
+{
+    aRequest.ReplyOtResult(
+        otCommissionerStart(mNcp->GetThreadHelper()->GetInstance(), nullptr, nullptr, nullptr));
+}
+
+void DBusThreadObject::CommissionerStopHandler(DBusRequest &aRequest)
+{
+    aRequest.ReplyOtResult(otCommissionerStop(mNcp->GetThreadHelper()->GetInstance()));
+}
+
+void DBusThreadObject::CommissionerAddAnyJoinerHandler(DBusRequest &aRequest)
+{
+    auto                 threadHelper = mNcp->GetThreadHelper();
+    std::string          pskd;
+    uint32_t             timeout      = 0;
+    auto                 args         = std::tie(pskd, timeout);
+    otError              error        = OT_ERROR_NONE;
+
+    VerifyOrExit(DBusMessageToTuple(*aRequest.GetMessage(), args) == OTBR_ERROR_NONE, error = OT_ERROR_INVALID_ARGS);
+
+    SuccessOrExit(error = otCommissionerAddJoiner(threadHelper->GetInstance(), nullptr,
+                                                  pskd.c_str(), timeout));
+
+exit:
+    aRequest.ReplyOtResult(error);
+}
+
+void DBusThreadObject::CommissionerRemoveAnyJoinerHandler(DBusRequest &aRequest)
+{
+    aRequest.ReplyOtResult(
+        otCommissionerRemoveJoiner(mNcp->GetThreadHelper()->GetInstance(), nullptr));
 }
 
 void DBusThreadObject::IntrospectHandler(DBusRequest &aRequest)

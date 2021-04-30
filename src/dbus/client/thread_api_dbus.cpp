@@ -393,6 +393,26 @@ ClientError ThreadApiDBus::RemoveService(uint32_t aEnterpriseNumber, const std::
     return CallDBusMethodSync(OTBR_DBUS_REMOVE_SERVICE_METHOD, std::tie(aEnterpriseNumber, aServiceData));
 }
 
+ClientError ThreadApiDBus::CommissionerStart(void)
+{
+    return CallDBusMethodSync(OTBR_DBUS_COMMISSIONER_START_METHOD);
+}
+
+ClientError ThreadApiDBus::CommissionerStop(void)
+{
+    return CallDBusMethodSync(OTBR_DBUS_COMMISSIONER_STOP_METHOD);
+}
+
+ClientError ThreadApiDBus::CommissionerAddAnyJoiner(const std::string& aPskd, uint32_t aTimeout)
+{
+    return CallDBusMethodSync(OTBR_DBUS_COMMISSIONER_ADD_ANY_JOINER_METHOD, std::tie(aPskd, aTimeout));
+}
+
+ClientError ThreadApiDBus::CommissionerRemoveAnyJoiner(void)
+{
+    return CallDBusMethodSync(OTBR_DBUS_COMMISSIONER_REMOVE_ANY_JOINER_METHOD);
+}
+
 ClientError ThreadApiDBus::SetMeshLocalPrefix(const std::array<uint8_t, OTBR_IP6_PREFIX_SIZE> &aPrefix)
 {
     return SetProperty(OTBR_DBUS_PROPERTY_MESH_LOCAL_PREFIX, aPrefix);

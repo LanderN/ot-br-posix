@@ -99,6 +99,10 @@ private:
     void RemoveExternalRouteHandler(DBusRequest &aRequest);
     void AddServiceHandler(DBusRequest &aRequest);
     void RemoveServiceHandler(DBusRequest &aRequest);
+    void CommissionerStartHandler(DBusRequest &aRequest);
+    void CommissionerStopHandler(DBusRequest &aRequest);
+    void CommissionerAddAnyJoinerHandler(DBusRequest &aRequest);
+    void CommissionerRemoveAnyJoinerHandler(DBusRequest &aRequest);
 
     void IntrospectHandler(DBusRequest &aRequest);
 

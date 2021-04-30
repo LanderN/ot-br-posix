@@ -278,6 +278,49 @@ public:
                               const std::vector<uint8_t> &aServiceData);
 
     /**
+     * This method starts the commissioner.
+     *
+     * @retval ERROR_NONE successfully performed the dbus function call
+     * @retval ERROR_DBUS dbus encode/decode error
+     * @retval ...        OpenThread defined error value otherwise
+     *
+     */
+    ClientError CommissionerStart();
+
+    /**
+     * This method stops the commissioner.
+     *
+     * @retval ERROR_NONE successfully performed the dbus function call
+     * @retval ERROR_DBUS dbus encode/decode error
+     * @retval ...        OpenThread defined error value otherwise
+     *
+     */
+    ClientError CommissionerStop();
+
+    /**
+     * This method adds a Joiner entry that allows any Joiner.
+     *
+     * @param[in]   aPskd     The Pre-Shared Key for the Joiner.
+     * @param[in]   aTimeout  Joiner timeout in seconds.
+     *
+     * @retval ERROR_NONE successfully performed the dbus function call
+     * @retval ERROR_DBUS dbus encode/decode error
+     * @retval ...        OpenThread defined error value otherwise
+     *
+     */
+    ClientError CommissionerAddAnyJoiner(const std::string& aPskd, uint32_t aTimeout);
+
+    /**
+     * This method removes the Joiner entry that allows any Joiner.
+     *
+     * @retval ERROR_NONE successfully performed the dbus function call
+     * @retval ERROR_DBUS dbus encode/decode error
+     * @retval ...        OpenThread defined error value otherwise
+     *
+     */
+    ClientError CommissionerRemoveAnyJoiner();
+
+    /**
      * This method sets the mesh-local prefix.
      *
      * @param[in]   aPrefix     The address prefix.
